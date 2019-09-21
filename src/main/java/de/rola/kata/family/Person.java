@@ -14,7 +14,7 @@ public class Person {
     }
 
     public void setParent(final Person parent) {
-        if (parents.isEmpty()) parents.add(parent);
+        if (parents.size() < 2) parents.add(parent);
     }
 
     public Set<Person> getParents() {
