@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@SuppressWarnings("ALL")
 public class Person {
     private final String name;
     private final Set<Person> parents = new HashSet<>();
@@ -14,11 +15,20 @@ public class Person {
     }
 
     public void setParent(final Person parent) {
-        if (parents.isEmpty()) parents.add(parent);
+        if (parents.size() > 1) throw new TooMuchParentsException(name);
+        parents.add(parent);
     }
 
     public Set<Person> getParents() {
         return new HashSet<>(parents);
+    }
+
+    public String getOtherParent(String name) {
+        if (parents.size() != 1) {
+            return null;
+        }
+        final String other = parents.iterator().next().getName();
+        return other.equals(name) ? null : other;
     }
 
     public String getName() {
@@ -26,7 +36,7 @@ public class Person {
     }
 
     public Stream<String> getParentsNames() {
-        return this.parents.stream().map(p -> p.getName());
+        return this.parents.stream().map(Person::getName);
     }
 
     public boolean setGender(final Gender gender) {
@@ -38,5 +48,19 @@ public class Person {
 
     public Gender getGender() {
         return this.gender;
+    }
+
+    public boolean isAncestor(String oldie) {
+        return ancestors()
+            .stream()
+            .map(Person::getName)
+            .anyMatch(ancestorName -> ancestorName.equals(oldie));
+    }
+
+    private Set<Person> ancestors() {
+        if (parents.isEmpty()) return parents;
+        final Set<Person> ancestors = new HashSet<>(parents);
+        parents.stream().map(Person::ancestors).forEach(ancestors::addAll);
+        return ancestors;
     }
 }

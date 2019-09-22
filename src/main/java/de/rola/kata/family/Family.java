@@ -1,9 +1,6 @@
 package de.rola.kata.family;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Family {
@@ -12,7 +9,10 @@ public class Family {
 
     public boolean male(String name) {
         final Person person = getPerson(name);
-        return person.setGender(Gender.Male);
+        if (!person.setGender(Gender.Male)) {
+            return false;
+        }
+        return getOtherParents(name).stream().allMatch(otherParent -> female(otherParent));
     }
 
     public boolean isMale(String name) {
@@ -22,7 +22,10 @@ public class Family {
 
     public boolean female(String name) {
         final Person person = getPerson(name);
-        return person.setGender(Gender.Female);
+        if (!person.setGender(Gender.Female)) {
+            return false;
+        }
+        return getOtherParents(name).stream().allMatch(this::male);
     }
 
     public boolean isFemale(String name) {
@@ -36,6 +39,9 @@ public class Family {
         }
         final Person child = getPerson(childName);
         final Person parent = getPerson(parentName);
+        if (parent.isAncestor(childName)) {
+            return false;
+        }
         child.setParent(parent);
         return true;
     }
@@ -71,6 +77,24 @@ public class Family {
             .map(r -> r.getName())
             .sorted()
             .collect(Collectors.toList());
+    }
+
+    private Set<String> getOtherParents(String name) {
+        return getChildrenOf(name)
+            .stream()
+            .map(child -> members.get(child).getOtherParent(name))
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toSet());
+    }
+
+    private Set<Gender> getGenders(Set<String> names) {
+        return names
+            .stream()
+            .map(members::get)
+            .filter(Objects::nonNull)
+            .map(Person::getGender)
+            .collect(Collectors.toSet());
     }
 
 }

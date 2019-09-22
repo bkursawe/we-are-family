@@ -12,4 +12,15 @@ public enum Gender {
         if (this == other) return true;
         return false;
     }
+
+    public Gender other() {
+        switch (this) {
+            case Male:
+                return Female;
+            case Female:
+                return Male;
+            default:
+                return Unknown;
+        }
+    }
 }
