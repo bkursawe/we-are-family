@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 public class Person {
     private final String name;
     private final Set<Person> parents = new HashSet<>();
-    private Gender gender = Gender.Unknown;
+    private Gender gender = Gender.UNKNOWN;
 
     public Person(final String name) {
         this.name = name;
@@ -24,11 +24,15 @@ public class Person {
     }
 
     public String getOtherParent(String name) {
-        if (parents.size() != 1) {
+        if (parents.size() != 2) {
             return null;
         }
-        final String other = parents.iterator().next().getName();
-        return other.equals(name) ? null : other;
+        return parents
+            .stream()
+            .map(Person::getName)
+            .filter(parentName -> !parentName.equals(name))
+            .findFirst()
+            .orElse(null);
     }
 
     public String getName() {

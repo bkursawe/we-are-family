@@ -5,22 +5,21 @@ package de.rola.kata.family;
  * @since 19.09.2019
  */
 public enum Gender {
-    Unknown, Male, Female;
+    UNKNOWN, MALE, FEMALE;
 
     public boolean isAllowed(Gender other) {
-        if (this == Unknown) return true;
-        if (this == other) return true;
-        return false;
+        if (this == UNKNOWN) return true;
+        return this == other;
     }
 
     public Gender other() {
         switch (this) {
-            case Male:
-                return Female;
-            case Female:
-                return Male;
+            case MALE:
+                return FEMALE;
+            case FEMALE:
+                return MALE;
             default:
-                return Unknown;
+                return UNKNOWN;
         }
     }
 }

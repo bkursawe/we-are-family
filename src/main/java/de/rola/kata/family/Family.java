@@ -3,34 +3,39 @@ package de.rola.kata.family;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("WeakerAccess")
 public class Family {
 
     private final Map<String, Person> members = new HashMap<>();
 
     public boolean male(String name) {
         final Person person = getPerson(name);
-        if (!person.setGender(Gender.Male)) {
+        if (!person.setGender(Gender.MALE)) {
             return false;
         }
-        return getOtherParents(name).stream().allMatch(otherParent -> female(otherParent));
+        return getOtherParents(name)
+            .stream()
+            .allMatch(parent -> members.get(parent).setGender(Gender.FEMALE));
     }
 
     public boolean isMale(String name) {
         final Person person = getPerson(name);
-        return person.getGender() == Gender.Male;
+        return person.getGender() == Gender.MALE;
     }
 
     public boolean female(String name) {
         final Person person = getPerson(name);
-        if (!person.setGender(Gender.Female)) {
+        if (!person.setGender(Gender.FEMALE)) {
             return false;
         }
-        return getOtherParents(name).stream().allMatch(this::male);
+        return getOtherParents(name)
+            .stream()
+            .allMatch(parent -> members.get(parent).setGender(Gender.MALE));
     }
 
     public boolean isFemale(String name) {
         final Person person = getPerson(name);
-        return person.getGender() == Gender.Female;
+        return person.getGender() == Gender.FEMALE;
     }
 
     public boolean setParentOf(String childName, String parentName) {
@@ -58,23 +63,18 @@ public class Family {
     }
 
     public List<String> getParentsOf(String name) {
-        if (members.isEmpty()) return new ArrayList<String>();
+        if (members.isEmpty()) return new ArrayList<>();
         final Person child = members.get(name);
-        return child
-            .getParents()
-            .stream()
-            .map(p -> p.getName())
-            .sorted()
-            .collect(Collectors.toList());
+        return child.getParents().stream().map(Person::getName).sorted().collect(Collectors.toList());
     }
 
     public List<String> getChildrenOf(String name) {
-        if (members.isEmpty()) return new ArrayList<String>();
+        if (members.isEmpty()) return new ArrayList<>();
         return members
             .values()
             .stream()
             .filter(p -> p.getParentsNames().anyMatch(n -> n.equals(name)))
-            .map(r -> r.getName())
+            .map(Person::getName)
             .sorted()
             .collect(Collectors.toList());
     }
@@ -85,15 +85,6 @@ public class Family {
             .map(child -> members.get(child).getOtherParent(name))
             .filter(Objects::nonNull)
             .distinct()
-            .collect(Collectors.toSet());
-    }
-
-    private Set<Gender> getGenders(Set<String> names) {
-        return names
-            .stream()
-            .map(members::get)
-            .filter(Objects::nonNull)
-            .map(Person::getGender)
             .collect(Collectors.toSet());
     }
 
